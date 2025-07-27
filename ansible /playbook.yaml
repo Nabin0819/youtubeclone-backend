@@ -1,0 +1,79 @@
+--- - name: Setup Docker, Nginx, PostgreSQL and Deploy youtube-clone 
+  hosts: webserver 
+  become: true 
+  vars: 
+    ansible_python_interpreter: /usr/bin/python3.10 
+ 
+  tasks: 
+    - name: Update APT package cache 
+      apt: 
+        update_cache: yes 
+ 
+    - name: Install Docker, Docker Compose, Nginx, and PostgreSQL 
+      apt: 
+        name: 
+          - docker.io 
+          - docker-compose 
+          - nginx 
+          - postgresql 
+        state: present 
+ 
+    - name: Ensure Docker service is running and enabled 
+      systemd: 
+        name: docker 
+        enabled: yes 
+        state: started 
+ 
+    - name: Ensure Nginx service is running and enabled 
+      systemd: 
+        name: nginx 
+        enabled: yes 
+        state: started 
+ 
+    - name: Ensure PostgreSQL service is running and enabled 
+      systemd: 
+        name: postgresql 
+        enabled: yes 
+        state: started 
+ 
+    - name: Create app directories on remote host 
+      file: 
+        path: "{{ item }}" 
+        state: directory 
+        owner: vagrant 
+        group: vagrant 
+        mode: '0755' 
+      loop: 
+        - /home/vagrant/app 
+        - /home/vagrant/app/frontend 
+        - /home/vagrant/app/backend 
+ 
+    - name: Copy docker-compose.yaml to remote host 
+      copy: 
+        src: /home/vagrant/youtube-clone/docker-compose.yaml 
+        dest: /home/vagrant/app/docker-compose.yaml 
+ 
+    - name: Copy Dockerfiles, .env, and source code 
+      copy: 
+        src: "{{ item.src }}" 
+        dest: "{{ item.dest }}" 
+      loop: 
+        - { src: /home/vagrant/youtube-clone/youtubeclone-frontend/Dockerfile, dest: 
+/home/vagrant/app/frontend/Dockerfile } 
+        - { src: /home/vagrant/youtube-clone/youtubeclone-backend/Dockerfile, dest: 
+/home/vagrant/app/backend/Dockerfile } 
+        - { src: /home/vagrant/youtube-clone/youtubeclone-frontend/.env, dest: /home/vagrant/app/frontend/.env } 
+        - { src: /home/vagrant/youtube-clone/youtubeclone-backend/.env, dest: /home/vagrant/app/backend/.env } 
+        - { src: /home/vagrant/youtube-clone/youtubeclone-frontend/, dest: /home/vagrant/app/frontend/ } 
+        - { src: /home/vagrant/youtube-clone/youtubeclone-backend/, dest: /home/vagrant/app/backend/ } 
+ 
+    - name: Stop existing containers 
+      command: docker-compose down --remove-orphans 
+      args: 
+        chdir: /home/vagrant/app 
+      ignore_errors: yes 
+ 
+    - name: Run app using docker-compose 
+      command: docker-compose up -d 
+      args: 
+        chdir: /home/vagrant/app
