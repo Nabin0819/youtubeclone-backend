@@ -1,0 +1,36 @@
+--- - name: Copy and Run Monitoring & Backup Scripts 
+  hosts: webserver 
+  become: true 
+  vars: 
+    ansible_python_interpreter: /usr/bin/python3.10 
+ 
+  tasks: 
+    - name: Create scripts directory 
+      file: 
+        path: /home/vagrant/scripts 
+        state: directory 
+ 
+    - name: Copy and set permissions for scripts 
+      copy: 
+        src: "{{ item }}" 
+        dest: "/home/vagrant/scripts/{{ item | basename }}" 
+      loop: 
+        - /home/vagrant/scripts/alertmanager-config.sh 
+        - /home/vagrant/scripts/backup_backend.sh 
+        - /home/vagrant/scripts/backup_db.sh 
+        - /home/vagrant/scripts/prometheus_grafana.sh 
+ 
+    - name: Set execute permissions 
+      file: 
+        path: "/home/vagrant/scripts/{{ item }}" 
+        mode: '0755' 
+      loop: 
+        - alertmanager-config.sh 
+        - backup_backend.sh 
+        - backup_db.sh 
+        - prometheus_grafana.sh 
+ 
+    - name: Execute all scripts in sequence 
+      command: "/home/vagrant/scripts/{{ item }}" 
+      loop: 
+- prometheus_grafana.sh - alertmanager-config.sh - backup_backend.sh - backup_db.sh 
