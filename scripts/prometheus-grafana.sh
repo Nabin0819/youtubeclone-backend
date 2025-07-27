@@ -5,8 +5,7 @@ sudo apt update && sudo apt upgrade -y
 # ---- NODE EXPORTER ---- 
 echo "Installing Node Exporter..." 
 cd /tmp 
-curl -LO https://github.com/prometheus/node_exporter/releases/download/v1.8.1/node_exporter-1.8.1.linux
-amd64.tar.gz 
+curl -LO https://github.com/prometheus/node_exporter/releases/download/v1.8.1/node_exporter-1.8.1.linux-amd64.tar.gz 
 tar -xvzf node_exporter-1.8.1.linux-amd64.tar.gz 
 sudo mv node_exporter-1.8.1.linux-amd64/node_exporter /usr/local/bin/ 
 sudo chmod +x /usr/local/bin/node_exporter 
@@ -27,8 +26,7 @@ echo "Node Exporter installed and running on port 9100"
 # ---- PROMETHEUS ---- 
 echo "Installing Prometheus..." 
 cd /tmp 
-curl -LO https://github.com/prometheus/prometheus/releases/download/v2.52.0/prometheus-2.52.0.linux
-amd64.tar.gz 
+curl -LO https://github.com/prometheus/prometheus/releases/download/v2.52.0/prometheus-2.52.0.linux-amd64.tar.gz 
 tar -xvzf prometheus-2.52.0.linux-amd64.tar.gz 
 cd prometheus-2.52.0.linux-amd64 
 sudo useradd --no-create-home --shell /bin/false prometheus || true 
